@@ -1,2 +1,2 @@
 def screen(msg):
-    print(msg)
+    return msg

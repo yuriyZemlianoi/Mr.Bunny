@@ -1,82 +1,64 @@
-import redis
-import urllib.request
 import json
+import time
+import urllib.request
+import redis
 from lcd import *
+
+from threading import Thread
+
 count = 0
 txLast = ''
-url_base = 'http://104.248.47.57:2000/api/v1/nodes/'
+uuid = ''
+amount = 0
+
+from bunny import *
+
+
 
 node_user = 'be01e47d-244b-44e8-b1c0-50b643b366fa'
 node_cash = '58d27f4a-b15f-43d3-8300-36fd09e07e69'
+url_base = 'http://104.248.47.57:2000/api/v1/nodes/'
 
-def get_redis():
-    return redis.StrictRedis(host='104.248.47.57', port=6379, db=0)
 
-def build_url(type, node1, node2='', amount=0):
-    url = ''
-    if type == 'history':
-        url = url_base+node1+'/history/transactions/payments/0/1000/1/'
-    if type == 'transaction':
-        if amount == 0:
-            print('Write amount!')
-        url = url_base+node1+'/contractors/'+node2+'/1/?amount='+amount
-    return url
+from flask import Flask
 
-def check_transaction(tx, red):
-    result = red.get(tx)
-    result = json.loads(result.decode('utf-8'))
-    if result['status'] == 200:
-        print(result)
-        return result['data']['transaction_uuid']
-    else:
-        return False
+app = Flask(__name__)
+bunny = Bunny()
 
-def get_max(array):
-    inverse = [(value, key) for key, value in array.items()]
-    return max(inverse)[1]
+def build_url(node1):
+    return url_base+node1+'/contractors/transactions/max/1/?contractor_uuid='+node_cash
 
-def get_last_transaction(txs):
-    fullArray = {}
-    for r in result['records']:
-        fullArray[r['transaction_uuid']] = r['unix_timestamp_microseconds']
-    return get_max(fullArray)
+@app.route('/')
+def index():
+    return 'uuid: '+str(bunny.uuid)+'\namount: '+str(bunny.amount)+'\ntxLast: '+str(bunny.txLast)
 
-def get_history(red):
-    r = urllib.request.urlopen(build_url('history', node_user)).read()
+@app.route('/history')
+def history():
+    red = bunny.get_redis()
+    result = bunny.get_history(red)
+    return str(result)
+@app.route('/amount')
+def amount():
+    r = urllib.request.urlopen(build_url(node_user)).read()
     data = json.loads(r.decode('utf-8'))
+    time.sleep(4)
+    red = redis.StrictRedis(host='104.248.47.57', port=6379, db=0)
     result = red.get(data['data']['response_uuid'])
-    result = json.loads(result.decode('utf-8'))
-    if result['status'] == 200:
-        return result['data']
-    else:
-        return False
+    data = json.loads(result.decode('utf-8'))
+    return data['data']['records'][0]['max_amount']
 
-def send_amount_by_txs(diff, records):
-    for i in range(0, diff):
-        screen('BANKOMAT SEND: ' + str(result['records'][i]['amount']))
+@app.route('/withdraw/<string:id>', methods=['GET'])
+def withdraw(id):
+    if id == bunny.uuid:
+        msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
+        bunny.uuid = ''
+        bunny.amount = ''
+        return msg
+    return 'You already got this money!'
 
-red = get_redis()
-while True:
-    result = get_history(red)
-    if result:
-        if count == 0 and result['count'] != 0:
-            print('First run!')
-            count = result['count']
-            txLast = get_last_transaction(result['records'])
-        elif count != result['count']:
-            send_amount_by_txs(result['count']-count, result['records'])
-
-            count = result['count']
-            txLast = get_last_transaction(result['records'])
-    else:
-        print('Fucking ERROR. Say your Money Bay!')
-
-
-
-
-
-
-# red = redis.StrictRedis(host='104.248.47.57', port=6379, db=0)
-# result = red.get('0011b149-fefc-4b58-96eb-344a889dc1b7')
-# res = json.loads(result.decode('utf-8'))
-# print(res)
+if __name__ == '__main__':
+    threadVolume = Thread(target=bunny.bunny_jump)
+    threadVolume.daemon = True
+    threadVolume.start()
+    #bunny_jump()
+    app.run(debug=True)
