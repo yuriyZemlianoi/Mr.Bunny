@@ -60,7 +60,7 @@ def withdraw():
     print(content['uuid'])
     #print(request.json["uuid"])
     global privateKey
-    id = rsa_decrypt(request.form["uuid"], privateKey)
+    id = rsa_decrypt(content['uuid'], privateKey)
     print(id)
     if id == bunny.uuid:
         msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
