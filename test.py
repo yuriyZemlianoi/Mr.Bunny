@@ -17,15 +17,4 @@
 # ticker = clientFirst.get_recent_market_data('ethuah')['ticker']
 # print(ticker)
 
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES, PKCS1_OAEP
 
-
-# Decrypt the session key with the private RSA key
-cipher_rsa = PKCS1_OAEP.new(private_key)
-session_key = cipher_rsa.decrypt(enc_session_key)
-
-# Decrypt the data with the AES session key
-cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
-data = cipher_aes.decrypt_and_verify(ciphertext, tag)
-print(data.decode("utf-8"))

@@ -59,9 +59,9 @@ def withdraw():
     id = bytearray.fromhex(content['uuid'])
     #print(content['uuid'])
     #print(request.json["uuid"])
-    #global privateKey
+    global privateKey
     #id = rsa_decrypt(content['uuid'], privateKey)
-    print(id)
+    print(rsa_decrypt(id, privateKey))
     if id == bunny.uuid:
         msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
         beep()
