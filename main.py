@@ -57,7 +57,9 @@ def amount(cur):
 @app.route('/withdraw', methods=['POST'])
 def withdraw():
     content = request.json
-    id = content['uuid']
+    encrypted_blob = content['uuid']
+    global privateKey
+    id = decrypt_blob(encrypted_blob, privateKey)
     # #print(content['uuid'])
     # #print(request.json["uuid"])
     # global privateKey

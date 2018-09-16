@@ -1,22 +1,35 @@
-# import rsa
-#
-# def rsa_create():
-#     (pubkey, privkey) = rsa.newkeys(512)
-#     return [pubkey, privkey]
-#
-# # шифруем
-# def rsa_encrypted(message, pubkey):
-#     return rsa.encrypt(message, pubkey)
-#
-# # расшифровываем
-# def rsa_decrypt(crypto, privkey):
-#     return rsa.decrypt(crypto, privkey)
-
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Cipher import PKCS1_OAEP
+import base64
+import zlib
 
+#Our Decryption Function
+def decrypt_blob(encrypted_blob, private_key):
 
-def rsa_decrypt(crypto, privkey):
-    cipher_rsa = PKCS1_OAEP.new(privkey)
-    session_key = cipher_rsa.decrypt(crypto)
-    return session_key
+    #Import the Private Key and use for decryption using PKCS1_OAEP
+    rsakey = RSA.importKey(private_key)
+    rsakey = PKCS1_OAEP.new(rsakey)
+
+    #Base 64 decode the data
+    encrypted_blob = base64.b64decode(encrypted_blob)
+
+    #In determining the chunk size, determine the private key length used in bytes.
+    #The data will be in decrypted in chunks
+    chunk_size = 512
+    offset = 0
+    decrypted = ""
+
+    #keep loop going as long as we have chunks to decrypt
+    while offset < len(encrypted_blob):
+        #The chunk
+        chunk = encrypted_blob[offset: offset + chunk_size]
+
+        #Append the decrypted chunk to the overall decrypted file
+        decrypted += rsakey.decrypt(chunk)
+
+        #Increase the offset by chunk size
+        offset += chunk_size
+
+    #return the decompressed decrypted data
+    return zlib.decompress(decrypted)
+
