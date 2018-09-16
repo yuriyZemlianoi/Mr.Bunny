@@ -13,11 +13,11 @@ uuid = ''
 amount = 0
 
 from bunny import *
+from beep import *
 
 
-
-node_user = 'be01e47d-244b-44e8-b1c0-50b643b366fa'
-node_cash = '58d27f4a-b15f-43d3-8300-36fd09e07e69'
+node_user = '61bad923-4b87-4ef2-ad59-57e33eed5f71'
+node_cash = 'c6d664fe-a4f4-41c0-afe3-c2c73a95b317'
 url_base = 'http://104.248.47.57:2000/api/v1/nodes/'
 
 
@@ -56,6 +56,7 @@ def amount(cur):
 def withdraw(id):
     if id == bunny.uuid:
         msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
+        beep()
         bunny.uuid = ''
         bunny.amount = ''
         return msg
@@ -66,4 +67,4 @@ if __name__ == '__main__':
     threadVolume.daemon = True
     threadVolume.start()
     #bunny_jump()
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
