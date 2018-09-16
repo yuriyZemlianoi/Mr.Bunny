@@ -56,6 +56,7 @@ def amount(cur):
 
 @app.route('/withdraw/<string:id>', methods=['GET'])
 def withdraw(id):
+    print(id)
     global privateKey
     id = rsa_decrypt(id, privateKey)
     print(id)
