@@ -12,6 +12,7 @@ uuid = ''
 amount = 0
 
 from bunny import *
+from beep import *
 
 
 
@@ -55,6 +56,7 @@ def amount(cur):
 def withdraw(id):
     if id == bunny.uuid:
         msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
+        beep()
         bunny.uuid = ''
         bunny.amount = ''
         return msg
@@ -65,4 +67,4 @@ if __name__ == '__main__':
     threadVolume.daemon = True
     threadVolume.start()
     #bunny_jump()
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
