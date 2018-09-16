@@ -1,6 +1,7 @@
 import json
 import time
 import urllib.request
+#import urllib2.urlopen
 import redis
 from lcd import *
 
