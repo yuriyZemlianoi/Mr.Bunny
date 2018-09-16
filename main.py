@@ -23,7 +23,7 @@ node_cash = 'c6d664fe-a4f4-41c0-afe3-c2c73a95b317'
 url_base = 'http://104.248.47.57:2000/api/v1/nodes/'
 
 
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 bunny = Bunny()
@@ -54,11 +54,13 @@ def amount(cur):
 
 
 
-@app.route('/withdraw/<string:id>', methods=['GET'])
-def withdraw(id):
-    print(id)
+@app.route('/withdraw', methods=['POST'])
+def withdraw():
+    content = request.json
+    print(content['uuid'])
+    #print(request.json["uuid"])
     global privateKey
-    id = rsa_decrypt(id, privateKey)
+    id = rsa_decrypt(request.form["uuid"], privateKey)
     print(id)
     if id == bunny.uuid:
         msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
