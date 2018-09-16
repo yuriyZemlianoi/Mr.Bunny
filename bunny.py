@@ -1,13 +1,17 @@
+import time
+from threading import Thread
+
 import redis
 import urllib.request
 import json
 import requests
 from kuna.client import KunaAPI
+#from threading import Thread
 
 class Bunny:
     url_base = 'http://104.248.47.57:2000/api/v1/nodes/'
-    node_user = 'be01e47d-244b-44e8-b1c0-50b643b366fa'
-    node_cash = '58d27f4a-b15f-43d3-8300-36fd09e07e69'
+    node_user = '61bad923-4b87-4ef2-ad59-57e33eed5f71'
+    node_cash = 'c6d664fe-a4f4-41c0-afe3-c2c73a95b317'
 
     def __init__(self):
         self.count = 0
@@ -57,7 +61,7 @@ class Bunny:
         return self.get_max(fullArray)
 
     def get_history(self, red):
-        r = urllib.request.urlopen(self.build_url('history', self.node_user)).read()
+        r = urllib.request.urlopen(self.build_url('history', self.node_cash)).read()
         data = json.loads(r.decode('utf-8'))
         result = red.get(data['data']['response_uuid'])
         result = json.loads(result.decode('utf-8'))
@@ -69,6 +73,8 @@ class Bunny:
     def send_money_back(self, amount):
         r = requests.post(self.build_url('transaction', self.node_cash, self.node_user, amount))
         if r.status_code == 200:
+            self.amount = 0
+            self.uuid = ''
             return True
         else:
             return False
@@ -81,6 +87,10 @@ class Bunny:
         for i in range(0, diff):
             self.amount = records[i]['amount']
             self.uuid = records[i]['transaction_uuid']
+            threadVolume = Thread(target=self.timer(self.uuid, self.amount))
+            threadVolume.daemon = True
+            threadVolume.start()
+
         return True
 
     def bunny_jump(self):
@@ -97,4 +107,12 @@ class Bunny:
                     self.count = result['count']
                     self.txLast = self.get_last_transaction(result['records'])
             else:
-                print('Fucking ERROR. Say your Money Bay!')
+                print('ERROR!')
+            time.sleep(2)
+
+
+    def timer(self, uuid, amount):
+        time.sleep(360)
+        if uuid == self.uuid:
+            self.send_money_back(amount)
+            self.uuid = ''
