@@ -57,12 +57,7 @@ def amount(cur):
 @app.route('/withdraw', methods=['POST'])
 def withdraw():
     content = request.json
-    id = bytearray.fromhex(content['uuid'])
-    #print(content['uuid'])
-    #print(request.json["uuid"])
-    global privateKey
-    #id = rsa_decrypt(content['uuid'], privateKey)
-    id = decrypt_blob(id, privateKey)
+    id = content['uuid']
     if id == bunny.uuid:
         msg = screen('BANKOMAT SEND: ' + str(bunny.amount))
         beep()
