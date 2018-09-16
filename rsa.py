@@ -1,35 +1,21 @@
+import Crypto
 from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
-import base64
-import zlib
+from Crypto import Random
+import ast
 
-#Our Decryption Function
-def decrypt_blob(encrypted_blob, private_key):
+def test():
+    random_generator = Random.new().read
+    key = RSA.generate(1024, random_generator) #generate pub and priv key
+    print('pk', key)
+    publickey = key.publickey() # pub key export for exchange
+    print('publickey', publickey)
 
-    #Import the Private Key and use for decryption using PKCS1_OAEP
-    rsakey = RSA.importKey(private_key)
-    rsakey = PKCS1_OAEP.new(rsakey)
+    encrypted = publickey.encrypt('encrypt this message', 32)
+    #message to encrypt is in the above line 'encrypt this message'
 
-    #Base 64 decode the data
-    encrypted_blob = base64.b64decode(encrypted_blob)
+    print('encrypted message:', encrypted)
+    #ciphertext
 
-    #In determining the chunk size, determine the private key length used in bytes.
-    #The data will be in decrypted in chunks
-    chunk_size = 512
-    offset = 0
-    decrypted = ""
-
-    #keep loop going as long as we have chunks to decrypt
-    while offset < len(encrypted_blob):
-        #The chunk
-        chunk = encrypted_blob[offset: offset + chunk_size]
-
-        #Append the decrypted chunk to the overall decrypted file
-        decrypted += rsakey.decrypt(chunk)
-
-        #Increase the offset by chunk size
-        offset += chunk_size
-
-    #return the decompressed decrypted data
-    return zlib.decompress(decrypted)
-
+    #decrypted code below
+    decrypted = key.decrypt(ast.literal_eval(str(encrypted)))
+    print('decrypted', decrypted)

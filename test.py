@@ -17,15 +17,6 @@
 # ticker = clientFirst.get_recent_market_data('ethuah')['ticker']
 # print(ticker)
 
-import os
-import base64
-from M2Crypto import RSA  # $ pip install m2crypto
+from rsa import *
 
-# ssh-keygen -f ~/.ssh/id_rsa.pub -e -m PKCS8 >id_rsa.pub.pem
-rsa = RSA.load_pub_key('id_rsa.pub.pem')     # load public key
-encrypted = rsa.public_encrypt(b'hello world', RSA.pkcs1_oaep_padding)  # encrypt
-print(base64.b64encode(encrypted).decode())
-
-rsa = RSA.load_key(os.path.expanduser('~/.ssh/id_rsa'))  # load private key
-encrypted = base64.b64decode(encrypted_base64)  # get raw bytes
-print(rsa.private_decrypt(encrypted, RSA.pkcs1_oaep_padding).decode())  # decrypt
+test()
