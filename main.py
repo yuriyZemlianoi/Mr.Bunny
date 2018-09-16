@@ -47,7 +47,7 @@ def amount(cur):
     result = red.get(data['data']['response_uuid'])
     data = json.loads(result.decode('utf-8'))
     amount = data['data']['records'][0]['max_amount']
-    return str(round(int(amount)/float(bunny.get_price(cur)),8))
+    return str(round(int(amount)/float(bunny.get_price(cur)), 8))
 
 
 
