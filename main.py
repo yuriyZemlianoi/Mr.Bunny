@@ -55,7 +55,9 @@ def amount(cur):
 
 @app.route('/withdraw', methods=['POST'])
 def withdraw():
-    print(request.form["uuid"])
+    content = request.json
+    print(content['uuid'])
+    #print(request.json["uuid"])
     global privateKey
     id = rsa_decrypt(request.form["uuid"], privateKey)
     print(id)
