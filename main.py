@@ -38,15 +38,19 @@ def history():
     red = bunny.get_redis()
     result = bunny.get_history(red)
     return str(result)
-@app.route('/amount')
-def amount():
+
+@app.route('/amount/<string:cur>', methods=['GET'])
+def amount(cur):
     r = urllib.request.urlopen(build_url(node_user)).read()
     data = json.loads(r.decode('utf-8'))
-    time.sleep(4)
+    time.sleep(5)
     red = redis.StrictRedis(host='104.248.47.57', port=6379, db=0)
     result = red.get(data['data']['response_uuid'])
     data = json.loads(result.decode('utf-8'))
-    return data['data']['records'][0]['max_amount']
+    amount = data['data']['records'][0]['max_amount']
+    return str(round(int(amount)/float(bunny.get_price(cur)), 8))
+
+
 
 @app.route('/withdraw/<string:id>', methods=['GET'])
 def withdraw(id):

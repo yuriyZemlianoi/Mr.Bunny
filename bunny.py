@@ -2,12 +2,10 @@ import redis
 import urllib.request
 import json
 import requests
+from kuna.client import KunaAPI
 
 class Bunny:
-
-
     url_base = 'http://104.248.47.57:2000/api/v1/nodes/'
-
     node_user = 'be01e47d-244b-44e8-b1c0-50b643b366fa'
     node_cash = '58d27f4a-b15f-43d3-8300-36fd09e07e69'
 
@@ -16,6 +14,11 @@ class Bunny:
         self.txLast = ''
         self.uuid = ''
         self.amount = 0
+
+    def get_price(self, cur):
+        clientFirst = KunaAPI('test' 'test')
+        ticker = clientFirst.get_recent_market_data(cur)['ticker']
+        return (float(ticker['low'])+float(ticker['high'])+float(ticker['last']))/3
 
     def get_redis(self):
         return redis.StrictRedis(host='104.248.47.57', port=6379, db=0)
